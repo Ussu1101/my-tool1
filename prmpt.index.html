@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Architect | Intent into existence</title>
+    <style>
+        /* SaaS DESIGN TOKENS */
+        :root {
+            --bg-color: #020617;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            /* Semantic Colors */
+            --accent-image: #38bdf8;
+            --accent-text: #fbbf24;
+            --accent-video: #f43f5e;
+            
+            /* Default State */
+            --current-accent: var(--accent-image);
+            
+            --border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 50% -20%, var(--current-accent), transparent 40%),
+                radial-gradient(circle at 0% 100%, rgba(56, 189, 248, 0.05), transparent 25%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.5s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .brand-tagline {
+            display: inline-block;
+            font-size: 0.75rem; /* Increased size */
+            font-weight: 900;    /* Increased weight */
+            text-transform: uppercase;
+            letter-spacing: 0.3em; /* More air */
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Subtle glow */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, var(--current-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.5s ease;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        /* Mode Switcher */
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            border-radius: var(--radius);
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.75rem;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mode-btn.active {
+            background: var(--card-bg);
+            color: var(--current-accent);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.6rem;
+            color: var(--text-muted);
+            padding-left: 2px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--current-accent);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+        }
+
+        /* Subject input emphasis */
+        #subject {
+            border-left: 4px solid var(--current-accent);
+            font-weight: 500;
+        }
+
+        #generateBtn {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, var(--current-accent), #fff);
+            background-size: 200% auto;
+            color: #000;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+        }
+
+        #generateBtn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(0,0,0,0.4);
+        }
+
+        #generateBtn:active {
+            transform: translateY(0);
+        }
+
+        .output-container {
+            margin-top: 2.5rem;
+            padding: 1.75rem;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+            border-radius: var(--radius);
+            border: 1px dashed var(--current-accent);
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .output-container.visible {
+            display: block;
+        }
+
+        #promptResult {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+            font-style: italic;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--current-accent);
+            color: var(--current-accent);
+            padding: 0.6rem 1.25rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            width: auto;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--current-accent);
+            color: #000;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="brand-tagline">Intent into existence</div>
+            <h1 id="mainHeadline">What should it look like?</h1>
+            <p id="mainSubline">Transform a single concept into a high-fidelity visual reality.</p>
+        </header>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="image">IMAGE</button>
+            <button class="mode-btn" data-mode="text">TEXT</button>
+            <button class="mode-btn" data-mode="video">VIDEO</button>
+        </div>
+
+        <div id="input-fields">
+            <div class="form-group">
+                <label for="subject" id="subjectLabel">Core Concept</label>
+                <input type="text" id="subject" placeholder="What are we building today?">
+            </div>
+
+            <!-- Dynamic Dropdowns Container -->
+            <div id="dynamic-dropdowns"></div>
+        </div>
+
+        <button id="generateBtn">GENERATE PROMPT</button>
+
+        <div class="output-container" id="outputSection">
+            <label id="outputLabel" style="color: var(--current-accent)">Architectural Output</label>
+            <p id="promptResult"></p>
+            <button class="copy-btn" id="copyBtn">Copy Strategy</button>
+        </div>
+    </div>
+
+    <div id="toast">Copied to clipboard!</div>
+
+    <script>
+        /**
+         * MULTI-MODAL DATA SCHEMA
+         */
+        const config = {
+            image: {
+                headline: "What should it look like?",
+                subline: "Transform a single concept into a high-fidelity visual reality.",
+                accent: "var(--accent-image)",
+                assembly: (s, d) => `A ${d.style}, ${d.detail} portrait of ${s}, ${d.lighting}, ${d.mood} mood, ${d.perspective} shot, professional composition.`,
+                fields: [
+                    { id: 'style', label: 'Style', options: ["Realistic", "Cinematic", "Anime", "Watercolor", "Pixel Art", "Cyberpunk"] },
+                    { id: 'mood', label: 'Mood', options: ["Dark", "Happy", "Mysterious", "Dramatic", "Ethereal"] },
+                    { id: 'lighting', label: 'Lighting', options: ["Soft lighting", "Neon lighting", "Natural daylight", "Volumetric fog"] },
+                    { id: 'perspective', label: 'Perspective', options: ["Close-up", "Wide shot", "Top-down", "Cinematic angle"] },
+                    { id: 'detail', label: 'Detail', options: ["Low detail", "High detail", "Ultra-detailed", "Masterpiece"] }
+                ]
+            },
+            text: {
+                headline: "What story are we telling?",
+                subline: "Draft everything from technical briefs to creative narratives with precision.",
+                accent: "var(--accent-text)",
+                assembly: (s, d) => `Write a ${d.length} ${d.format} about ${s}. The tone should be ${d.tone} and the target audience is ${d.audience}. Ensure the style is ${d.style}.`,
+                fields: [
+                    { id: 'format', label: 'Format', options: ["Blog Post", "Technical Essay", "Poem", "Short Story", "Email", "Ad Copy"] },
+                    { id: 'tone', label: 'Tone', options: ["Professional", "Humorous", "Academic", "Inspirational", "Sarcastic"] },
+                    { id: 'audience', label: 'Audience', options: ["Experts", "Children", "General Public", "Executive Board", "Developers"] },
+                    { id: 'length', label: 'Length', options: ["Short & Punchy", "Medium (500 words)", "Long-form", "10-part thread"] },
+                    { id: 'style', label: 'Writing Style', options: ["Minimalist", "Descriptive", "Persuasive", "Direct"] }
+                ]
+            },
+            video: {
+                headline: "How does it move?",
+                subline: "Define the motion, perspective, and energy of your next cinematic sequence.",
+                accent: "var(--accent-video)",
+                assembly: (s, d) => `A ${d.motion} ${d.shot_type} video of ${s}. Visual style: ${d.style}. Frame rate: ${d.fps}. ${d.camera_movement} movement, ${d.resolution}.`,
+                fields: [
+                    { id: 'style', label: 'Visual Style', options: ["Photorealistic", "3D Animation", "Hand-drawn", "CCTV Footage", "Vintage Film"] },
+                    { id: 'motion', label: 'Motion Intensity', options: ["Still-life", "Slow motion", "Fast-paced action", "Fluid transitions"] },
+                    { id: 'camera_movement', label: 'Camera Path', options: ["Static", "Smooth Pan", "Drone Flyover", "Handheld Shake", "Zoom In"] },
+                    { id: 'shot_type', label: 'Shot Type', options: ["Establishing shot", "Medium shot", "Tracking shot", "POV"] },
+                    { id: 'fps', label: 'Frame Rate', options: ["24fps (Cinematic)", "60fps (Smooth)", "12fps (Stop-motion)"] },
+                    { id: 'resolution', label: 'Resolution', options: ["1080p", "4K Vertical", "Wide Cinema Scope"] }
+                ]
+            }
+        };
+
+        let currentMode = 'image';
+
+        // Selectors
+        const dropdownContainer = document.getElementById('dynamic-dropdowns');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const subjectInput = document.getElementById('subject');
+        const promptResult = document.getElementById('promptResult');
+        const outputSection = document.getElementById('outputSection');
+        const generateBtn = document.getElementById('generateBtn');
+        const toast = document.getElementById('toast');
+        const mainHeadline = document.getElementById('mainHeadline');
+        const mainSubline = document.getElementById('mainSubline');
+
+        /**
+         * MODE SWITCHING LOGIC
+         */
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update CSS Variable for dynamic accent
+            document.documentElement.style.setProperty('--current-accent', config[mode].accent);
+            
+            // Update UI Active State
+            modeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            // Update Headlines
+            mainHeadline.textContent = config[mode].headline;
+            mainSubline.textContent = config[mode].subline;
+
+            // Render Fields
+            renderFields(mode);
+            
+            // Clear previous results
+            outputSection.classList.remove('visible');
+        }
+
+        function renderFields(mode) {
+            dropdownContainer.innerHTML = '';
+            const fields = config[mode].fields;
+
+            fields.forEach(field => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.textContent = field.label;
+                
+                const select = document.createElement('select');
+                select.id = `input-${field.id}`;
+                
+                field.options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    select.appendChild(option);
+                });
+
+                group.appendChild(label);
+                group.appendChild(select);
+                dropdownContainer.appendChild(group);
+            });
+        }
+
+        /**
+         * PROMPT ASSEMBLY
+         */
+        function generate() {
+            const subject = subjectInput.value.trim() || "Something incredible";
+            const fieldValues = {};
+            
+            config[currentMode].fields.forEach(field => {
+                const el = document.getElementById(`input-${field.id}`);
+                fieldValues[field.id] = el.value;
+            });
+
+            const finalPrompt = config[currentMode].assembly(subject, fieldValues);
+            
+            promptResult.textContent = `"${finalPrompt}"`;
+            outputSection.classList.add('visible');
+            outputSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /**
+         * UTILITIES
+         */
+        function copy() {
+            const text = promptResult.textContent.replace(/"/g, '');
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Initialize
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+        });
+        generateBtn.addEventListener('click', generate);
+        document.getElementById('copyBtn').addEventListener('click', copy);
+
+        // Bootstrap the app
+        switchMode('image');
+
+    </script>
+</body>
+</html>
